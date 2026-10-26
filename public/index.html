@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agboyi-Ketu LCDA - Report an Issue</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="top-bar">
+        <div class="logo">Agboyi-Ketu LCDA</div>
+        <a href="admin.html" class="staff-link">Staff Login</a>
+    </div>
+
+    <div class="hero">
+        <h1>Make a Complaint</h1>
+        <p>The LCDA is committed to protecting the community from the harmful effects of pollution, bad roads, and drainage issues. We provide a simple system for members of the public to make complaints.</p>
+    </div>
+
+    <div class="main-content">
+        <div class="info-section">
+            <h2>Who should I contact?</h2>
+            <p>If you come across a community problem, the quickest way to fix it is to contact the LCDA directly. They may not be aware of the problem or its effects and will be happy to fix it.</p>
+            
+            <h3>What happens next?</h3>
+            <p>When you report an issue to the LCDA, they will investigate the matter and take the appropriate action. They will keep you informed of progress when they have concluded their investigation.</p>
+            
+            <div class="image-container">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ6oSOY5bXoqJosOVt2XoHVrxvBnybwJyWrtphG7Bdv5d-Rh0GjLDZ9BtU&s=10" alt="Agboyi-Ketu Community">
+                <p class="caption">Agboyi-Ketu LCDA - Community Infrastructure</p>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>Online Complaint Form</h2>
+            <form id="complaintForm">
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="name" placeholder="e.g. John Doe" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Email Address (used for tracking)</label>
+                    <input type="email" id="email" placeholder="e.g. john@email.com" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Type of Problem</label>
+                    <select id="type" required onchange="toggleOtherInput()">
+                        <option value="">-- Select Issue --</option>
+                        <option value="Road">Bad Road</option>
+                        <option value="Drainage">Blocked Drainage</option>
+                        <option value="Electricity">Electricity Fault</option>
+                        <option value="Sanitation">Sanitation / Waste</option>
+                        <option value="Other">Other (Please Specify)</option>
+                    </select>
+                </div>
+
+                <div class="input-group" id="otherTypeContainer" style="display: none;">
+                    <label>Specify Issue</label>
+                    <input type="text" id="otherType" placeholder="Type your issue here...">
+                </div>
+
+                <div class="input-group">
+                    <label>Location</label>
+                    <input type="text" id="location" placeholder="e.g. Agboyi Road" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Description of Issue</label>
+                    <textarea id="description" rows="4" placeholder="Explain what happened..." required></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>Upload Picture (Optional)</label>
+                    <input type="file" id="image" accept="image/*">
+                </div>
+
+                <button type="submit" class="btn-submit">Submit Complaint</button>
+            </form>
+            <p id="message" class="success-msg"></p>
+        </div>
+    </div>
+
+    <div class="track-section">
+        <h2>🔍 Track Your Report</h2>
+        <p>Enter the email address you used to submit a complaint to check its current status.</p>
+        <div class="track-input-group">
+            <input type="email" id="trackEmail" placeholder="Enter your email address">
+            <button onclick="trackComplaint()" class="btn-track">Check Status</button>
+        </div>
+        <div id="trackResults" class="track-results"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

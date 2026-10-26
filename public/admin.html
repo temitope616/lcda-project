@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard - Agboyi-Ketu LCDA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="top-bar">
+        <div class="logo">LCDA Staff Dashboard</div>
+        <a href="index.html" class="staff-link">← Back to Public Site</a>
+    </div>
+
+    <div class="main-content" id="loginScreen">
+        <div class="form-section" style="max-width: 400px; margin: 50px auto; width: 100%;">
+            <h2>Secure Staff Login</h2>
+            <p style="margin-bottom: 20px; color: #666;">Enter the LCDA admin password to view complaints.</p>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="Enter password..." required>
+                </div>
+                
+                <button type="submit" class="btn-submit" id="loginBtn">Login</button>
+            </form>
+            
+            <p id="loginError" style="color: red; text-align: center; margin-top: 10px;"></p>
+        </div>
+    </div>
+
+    <div id="dashboardScreen" style="display: none;">
+        <div class="table-container">
+            <h2 style="color: #004b87; margin-bottom: 20px;">All Community Complaints</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Location</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
