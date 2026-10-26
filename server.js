@@ -170,9 +170,7 @@ async function startServer() {
 
     mongoClient = new MongoClient(MONGO_URI);
     await mongoClient.connect();
-    const db = process.env.MONGO_DB_NAME
-        ? mongoClient.db(process.env.MONGO_DB_NAME)
-        : mongoClient.db();
+    const db = mongoClient.db();
     complaints = db.collection('complaints');
     await complaints.createIndex({ email: 1 });
     await complaints.createIndex({ createdAt: -1 });
