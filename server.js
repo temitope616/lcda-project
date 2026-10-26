@@ -1,5 +1,7 @@
+require('dotenv').config();
+
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
+const { MongoClient, ObjectId } = require('mongodb');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -31,57 +33,76 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// ==========================================
-// 3. CONNECT TO DATABASE
-// ==========================================
-const db = new sqlite3.Database('database.db');
+let complaints;
 
-db.run(`
-    CREATE TABLE IF NOT EXISTS complaints (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        email TEXT,
-        type TEXT,
-        description TEXT,
-        location TEXT,
-        image TEXT,
-        status TEXT DEFAULT 'Pending',
-        date TEXT
-    )
-`);
+function serializeComplaint({
+    _id,
+    name,
+    email,
+    type,
+    description,
+    location,
+    image,
+    status,
+    date
+}) {
+    return {
+        id: _id.toString(),
+        name,
+        email,
+        type,
+        description,
+        location,
+        image,
+        status,
+        date
+    };
+}
 
 // ==========================================
-// 4. CITIZEN ROUTES
+// 3. CITIZEN ROUTES
 // ==========================================
-app.post('/api/complaints', upload.single('image'), (req, res) => {
+app.post('/api/complaints', upload.single('image'), async (req, res) => {
     const { name, email, type, description, location } = req.body;
     const date = new Date().toLocaleDateString();
     const image = req.file ? req.file.filename : 'No Image';
 
-    const sql = `INSERT INTO complaints (name, email, type, description, location, image, date) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-    
-    db.run(sql, [name, email, type, description, location, image, date], function(err) {
-        if (err) {
-            res.status(500).json({ error: "Database error" });
-        } else {
-            res.json({ message: "Complaint submitted successfully!" });
-        }
-    });
+    try {
+        await complaints.insertOne({
+            name,
+            email,
+            type,
+            description,
+            location,
+            image,
+            status: 'Pending',
+            date,
+            createdAt: new Date()
+        });
+        res.json({ message: "Complaint submitted successfully!" });
+    } catch (err) {
+        console.error('Failed to insert complaint:', err);
+        res.status(500).json({ error: "Database error" });
+    }
 });
 
-app.get('/api/track', (req, res) => {
+app.get('/api/track', async (req, res) => {
     const email = req.query.email;
     if (!email) return res.status(400).json({ error: "Email required" });
 
-    const sql = `SELECT * FROM complaints WHERE email = ? ORDER BY id DESC`;
-    db.all(sql, [email], (err, rows) => {
-        if (err) res.status(500).json({ error: "Database error" });
-        else res.json(rows);
-    });
+    try {
+        const rows = await complaints.find({ email })
+            .sort({ createdAt: -1, _id: -1 })
+            .toArray();
+        res.json(rows.map(serializeComplaint));
+    } catch (err) {
+        console.error('Failed to track complaints:', err);
+        res.status(500).json({ error: "Database error" });
+    }
 });
 
 // ==========================================
-// 5. ADMIN ROUTES
+// 4. ADMIN ROUTES
 // ==========================================
 app.post('/api/login', (req, res) => {
     if (!req.body || !req.body.password) {
@@ -97,24 +118,79 @@ app.post('/api/login', (req, res) => {
     }
 });
 
-app.get('/api/complaints', (req, res) => {
-    db.all(`SELECT * FROM complaints ORDER BY id DESC`, [], (err, rows) => {
-        if (err) res.status(500).json({ error: "Database error" });
-        else res.json(rows);
-    });
+app.get('/api/complaints', async (req, res) => {
+    try {
+        const rows = await complaints.find({})
+            .sort({ createdAt: -1, _id: -1 })
+            .toArray();
+        res.json(rows.map(serializeComplaint));
+    } catch (err) {
+        console.error('Failed to list complaints:', err);
+        res.status(500).json({ error: "Database error" });
+    }
 });
 
-app.put('/api/complaints/:id', (req, res) => {
-    db.run(`UPDATE complaints SET status = ? WHERE id = ?`, [req.body.status, req.params.id], function(err) {
-        if (err) res.status(500).json({ error: "Update failed" });
-        else res.json({ message: "Status updated" });
-    });
+app.put('/api/complaints/:id', async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body || {};
+
+    if (!/^[0-9a-fA-F]{24}$/.test(id)) {
+        return res.status(400).json({ error: "Invalid complaint ID" });
+    }
+    if (typeof status !== 'string' || !status.trim()) {
+        return res.status(400).json({ error: "Status required" });
+    }
+
+    try {
+        const result = await complaints.updateOne(
+            { _id: new ObjectId(id) },
+            { $set: { status: status.trim() } }
+        );
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ error: "Complaint not found" });
+        }
+        res.json({ message: "Status updated" });
+    } catch (err) {
+        console.error('Failed to update complaint status:', err);
+        res.status(500).json({ error: "Update failed" });
+    }
 });
 
 // ==========================================
-// 6. START SERVER (Dynamic Port for Render)
+// 5. START SERVER AFTER DATABASE CONNECTION
 // ==========================================
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+const MONGO_URI = process.env.MONGO_DB_URI;
+let mongoClient;
+
+async function startServer() {
+    if (!MONGO_URI) {
+        throw new Error('MONGO_DB_URI is required');
+    }
+
+    mongoClient = new MongoClient(MONGO_URI);
+    await mongoClient.connect();
+    const db = process.env.MONGO_DB_NAME
+        ? mongoClient.db(process.env.MONGO_DB_NAME)
+        : mongoClient.db();
+    complaints = db.collection('complaints');
+    await complaints.createIndex({ email: 1 });
+    await complaints.createIndex({ createdAt: -1 });
+
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+
+}
+
+startServer().catch(async (err) => {
+    console.error('Failed to start server:', err);
+    if (mongoClient) {
+        try {
+            await mongoClient.close();
+        } catch (closeError) {
+            console.error('Failed to close MongoDB client after startup error:', closeError);
+        }
+    }
+    process.exitCode = 1;
 });

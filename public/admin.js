@@ -64,7 +64,7 @@ function loadComplaints() {
                 </td>
                 <td>
                     ${complaint.status === 'Pending' 
-                        ? `<button class="btn-resolve" onclick="resolveComplaint(${complaint.id})">Mark as Resolved</button>` 
+                        ? `<button class="btn-resolve" onclick="resolveComplaint('${complaint.id}')">Mark as Resolved</button>`
                         : '✅ Done'}
                 </td>
             `;
