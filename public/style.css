@@ -66,6 +66,20 @@ table { width: 100%; border-collapse: collapse; }
 th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
 th { background-color: #004b87; color: white; }
 .img-thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
+.img-preview-button { display: block; padding: 0; border: 0; background: transparent; cursor: zoom-in; }
+.img-preview-button:focus-visible, .image-viewer-close:focus-visible { outline: 3px solid #f0ad4e; outline-offset: 3px; }
+.image-viewer[hidden] { display: none; }
+.image-viewer {
+    position: fixed; inset: 0; z-index: 1000; display: flex;
+    align-items: center; justify-content: center; padding: 60px 20px 20px;
+    background: rgba(0, 0, 0, 0.9);
+}
+.image-viewer-image { max-width: 100%; max-height: 100%; object-fit: contain; }
+.image-viewer-close {
+    position: absolute; top: 16px; right: 20px; padding: 8px 14px;
+    border: 1px solid white; border-radius: 4px; background: #fff;
+    color: #222; font-size: 16px; cursor: pointer;
+}
 .btn-resolve { background-color: #27ae60; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; }
 
 @media (max-width: 768px) {

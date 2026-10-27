@@ -35,6 +35,59 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     });
 });
 
+const imageViewer = document.getElementById('imageViewer');
+const fullSizeImage = document.getElementById('fullSizeImage');
+const closeImageViewerButton = document.getElementById('closeImageViewer');
+let imageViewerTrigger = null;
+let previousBodyOverflow = '';
+
+function openImageViewer(image, trigger) {
+    imageViewerTrigger = trigger;
+    fullSizeImage.src = image.src;
+    fullSizeImage.alt = image.alt;
+    imageViewer.hidden = false;
+    imageViewer.setAttribute('aria-hidden', 'false');
+    previousBodyOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeImageViewerButton.focus();
+}
+
+function closeImageViewer() {
+    imageViewer.hidden = true;
+    imageViewer.setAttribute('aria-hidden', 'true');
+    fullSizeImage.removeAttribute('src');
+    document.body.style.overflow = previousBodyOverflow;
+    if (imageViewerTrigger && imageViewerTrigger.isConnected) {
+        imageViewerTrigger.focus();
+    }
+    imageViewerTrigger = null;
+}
+
+document.getElementById('tableBody').addEventListener('click', function(e) {
+    const imageButton = e.target.closest('.img-preview-button');
+    if (imageButton) {
+        openImageViewer(imageButton.querySelector('img'), imageButton);
+    }
+});
+
+closeImageViewerButton.addEventListener('click', closeImageViewer);
+imageViewer.addEventListener('click', function(e) {
+    if (e.target === imageViewer) {
+        closeImageViewer();
+    }
+});
+document.addEventListener('keydown', function(e) {
+    if (imageViewer.hidden) {
+        return;
+    }
+    if (e.key === 'Escape') {
+        closeImageViewer();
+    } else if (e.key === 'Tab') {
+        e.preventDefault();
+        closeImageViewerButton.focus();
+    }
+});
+
 function loadComplaints() {
     fetch('/api/complaints')
     .then(res => res.json())
@@ -47,7 +100,7 @@ function loadComplaints() {
             
             let imageHTML = `<span style="font-size:12px;color:#999;">No Image</span>`;
             if (complaint.image !== 'No Image') {
-                imageHTML = `<img src="/uploads/${complaint.image}" class="img-thumb" alt="Issue Photo">`;
+                imageHTML = `<button type="button" class="img-preview-button" aria-label="View full-size issue photo"><img src="/uploads/${complaint.image}" class="img-thumb" alt="Issue Photo"></button>`;
             }
 
             const statusColor = complaint.status === 'Pending' ? '#e67e22' : '#27ae60';
