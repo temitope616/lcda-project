@@ -57,7 +57,12 @@ input, select, textarea {
 .btn-track { padding: 10px 20px; background: #004b87; color: white; border: none; border-radius: 4px; cursor: pointer; }
 .track-results { margin-top: 20px; text-align: left; }
 
-.track-item { border-bottom: 1px solid #ddd; padding: 10px 0; }
+.track-item { border: 1px solid #ddd; border-radius: 6px; padding: 16px; margin-top: 14px; background: #fff; }
+.track-item-title { color: #004b87; margin-bottom: 8px; }
+.track-item p { margin: 6px 0; overflow-wrap: anywhere; }
+.track-image-button { display: block; margin-top: 12px; padding: 0; border: 0; background: transparent; cursor: zoom-in; }
+.track-image-button:focus-visible { outline: 3px solid #f0ad4e; outline-offset: 3px; }
+.track-image { display: block; max-width: min(100%, 320px); max-height: 240px; border-radius: 4px; object-fit: contain; }
 .status-pending { color: #e67e22; font-weight: bold; }
 .status-resolved { color: #27ae60; font-weight: bold; }
 

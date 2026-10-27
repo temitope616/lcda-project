@@ -90,7 +90,27 @@
             <input type="email" id="trackEmail" placeholder="Enter your email address">
             <button onclick="trackComplaint()" class="btn-track">Check Status</button>
         </div>
-        <div id="trackResults" class="track-results"></div>
+        <div id="trackResults" class="track-results" aria-live="polite"></div>
+    </div>
+
+    <div
+        id="trackingImageViewer"
+        class="image-viewer"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Full-size complaint image"
+        aria-hidden="true"
+        hidden
+    >
+        <button
+            type="button"
+            id="closeTrackingImageViewer"
+            class="image-viewer-close"
+            aria-label="Close image viewer"
+        >
+            Close
+        </button>
+        <img id="trackingFullSizeImage" class="image-viewer-image" alt="">
     </div>
 
     <script src="script.js"></script>
